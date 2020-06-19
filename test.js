@@ -24,7 +24,7 @@ const analyzeOffer = (offer) => {
   gestTruck(offer);
 };
 
-const gestTruck = async (offer) => {
+const gestTruck = (offer) => {
   verif = false;
   TrucksAvailable = [];
   load = offer.boxes;
@@ -48,9 +48,7 @@ const gestTruck = async (offer) => {
     console.log("Can't take the offer");
   } else {
     console.log("Can take the offer");
-    for (Truck of TrucksAvailable) {
-      tempTrunckOnTheRoad(Truck, offer);
-    }
+    TrucksAvailable.map((x) => tempTrunckOnTheRoad(x, offer));
   }
 };
 
