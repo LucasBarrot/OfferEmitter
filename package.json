@@ -1,19 +1,19 @@
 {
-  "name": "offeremitter",
+  "name": "projecteventemitter",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "original.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LucasBarrot/OfferEmitter.git"
+    "url": "git+https://github.com/LucasBarrot/ProjectEventEmitter.git"
   },
-  "author": "Lucas Barrot",
+  "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/LucasBarrot/OfferEmitter/issues"
+    "url": "https://github.com/LucasBarrot/ProjectEventEmitter/issues"
   },
-  "homepage": "https://github.com/LucasBarrot/OfferEmitter#readme"
+  "homepage": "https://github.com/LucasBarrot/ProjectEventEmitter#readme"
 }

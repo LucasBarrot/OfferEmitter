@@ -1,16 +1,8 @@
-const {
-    buyTruck,
-    warehouse,
-    launchEmitter
-} = require('./functions');
+const TM = require('./Truck_M_test.js');
 
-const truckDict = [{
-    name: 'First Truck',
-    speed: 100,
-    capacity: 20
-}]
-const marketEvent = new(require('events').EventEmitter)();
+const marketEvent = new(require('events').EventEmitter)(); //define EventEmitter class
 
+// renvoie les infos
 const emitter_ = () => {
     marketEvent.emit('New Offer', {
         pricePerBox: Math.ceil(Math.random() * 10),
@@ -19,45 +11,26 @@ const emitter_ = () => {
     });
 };
 
-const analyzedOffer = offer => {
-    if (typeof bank === 'undefined') {
-        let bank = 0
-    }
-    if (typeof truckDict === 'undefined') {
-        let truckDict = [{
-            name: 'First Truck',
-            speed: 100,
-            capacity: 20
-        }]
-    }
-    await buyTruck(truckDict, bank);
-    let analyzedOffer = {
-        pricePerBox: offer.pricePerBox,
-        boxes: offer.boxes,
-        travel: offer.travel,
-        netWorth: offer.boxes * offer.pricePerBox / offer.travel,
-        netValue: offer.boxes * offer.pricePerBox,
-        truckUsed: Math.ceil(offer.boxes / 20),
-    }
-    if (analyzedOffer.netValue) {
-        warehouse(analyzedOffer, truckDict, bank)
-    }
+const launchEmitter = () => {
+    emitter_();
+    setTimeout(launchEmitter, Math.random() * 10000);
+};
+
+const analyzeOffer = offer => {
+    console.log(offer);
+    TM.gestTruck(offer);
 }
 
-// const bank = (modifier, bank) => {
-//     bank = bank + modifier;
-//     console.log(bank);
-//     buyTruck(truckDict, bank);
-// }
-/* BEGIN - A VIRER */
-marketEvent.on('New Offer', offer => {
-    analyzedOffer(offer)
-});
-launchEmitter();
-/* END - A VIRER */
 
+marketEvent.on('New Offer', analyzeOffer);
+
+// /* BEGIN - A VIRER */
+//marketEvent.on('New Offer', offer => console.log(offer));
+launchEmitter();
+// /* END - A VIRER */
 
 module.exports = {
     launchEmitter,
     marketEvent
 };
+
