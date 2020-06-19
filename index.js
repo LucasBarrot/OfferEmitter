@@ -1,63 +1,16 @@
-const {
-    buyTruck,
-    warehouse,
-    launchEmitter
-} = require('./functions');
-
-const truckDict = [{
-    name: 'First Truck',
-    speed: 100,
-    capacity: 20
-}]
-const marketEvent = new(require('events').EventEmitter)();
-
-const emitter_ = () => {
-    marketEvent.emit('New Offer', {
-        pricePerBox: Math.ceil(Math.random() * 10),
-        boxes: Math.floor(Math.random() * 100),
-        travel: Math.floor(Math.random() * 1000)
-    });
-};
-
-const analyzedOffer = offer => {
-    if (typeof bank === 'undefined') {
-        let bank = 0
-    }
-    if (typeof truckDict === 'undefined') {
-        let truckDict = [{
-            name: 'First Truck',
-            speed: 100,
-            capacity: 20
-        }]
-    }
-    await buyTruck(truckDict, bank);
-    let analyzedOffer = {
-        pricePerBox: offer.pricePerBox,
-        boxes: offer.boxes,
-        travel: offer.travel,
-        netWorth: offer.boxes * offer.pricePerBox / offer.travel,
-        netValue: offer.boxes * offer.pricePerBox,
-        truckUsed: Math.ceil(offer.boxes / 20),
-    }
-    if (analyzedOffer.netValue) {
-        warehouse(analyzedOffer, truckDict, bank)
-    }
+const FT = require('./functions.js');
+const EV = require('./events.js')
+const dataBase = {
+    "bank": 0,
+    Trucks: [{
+        name: "Truck_1",
+        status: "Free",
+        capacity: 20,
+        speed: 100
+    }]
 }
 
-// const bank = (modifier, bank) => {
-//     bank = bank + modifier;
-//     console.log(bank);
-//     buyTruck(truckDict, bank);
-// }
-/* BEGIN - A VIRER */
-marketEvent.on('New Offer', offer => {
-    analyzedOffer(offer)
-});
-launchEmitter();
-/* END - A VIRER */
 
-
-module.exports = {
-    launchEmitter,
-    marketEvent
-};
+EV.marketEvent.on('New Offer', offer => FT.analyzedOffer(offer));
+EV.buyTruckEvent.on('buyNewTruck', FT.buyTruck(dataBase));
+FT.launchEmitter();
