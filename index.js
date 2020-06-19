@@ -1,4 +1,3 @@
-const branch = "Lucas"
 const {
     buyTruck,
     warehouse,
