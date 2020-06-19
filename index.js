@@ -1,30 +1,17 @@
-const marketEvent = new (require("events").EventEmitter)();
-
-const emitter_ = () => {
-  marketEvent.emit("New Offer", {
-    pricePerBox: Math.ceil(Math.random() * 10),
-    boxes: Math.floor(Math.random() * 100),
-    travel: Math.floor(Math.random() * 1000),
-  });
+const FT = require("./functions.js");
+const EV = require("./events.js");
+const dataBase = {
+  bank: 0,
+  Trucks: [
+    {
+      name: "Truck_1",
+      status: "Free",
+      capacity: 20,
+      speed: 100,
+    },
+  ],
 };
 
-const launchEmitter = () => {
-  emitter_();
-  setTimeout(launchEmitter, Math.random() * 10000);
-};
-
-const analyzeOffer = (offer) => {
-  console.log(offer.boxes, offer.pricePerBox, offer.travel);
-};
-
-marketEvent.on("New Offer", analyzeOffer);
-
-// /* BEGIN - A VIRER */
-marketEvent.on("New Offer", (offer) => console.log(offer));
-launchEmitter();
-// /* END - A VIRER */
-
-module.exports = {
-  launchEmitter,
-  marketEvent,
-};
+EV.marketEvent.on("New Offer", (offer) => FT.analyzedOffer(offer));
+EV.buyTruckEvent.on("buyNewTruck", FT.buyTruck(dataBase));
+FT.launchEmitter();
