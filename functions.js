@@ -1,9 +1,10 @@
 const EV = require('./events.js')
 
 const buyTruck = (dataBase) => {
+    console.log(dataBase.bank)
     if (dataBase.bank > 1000) {
         dataBase.Trucks.push({
-            name: "Truck_".concat(Trucks.length),
+            name: "Truck_".concat(dataBase.Trucks.length),
             status: "Free",
             capacity: 20,
             speed: 100
@@ -18,8 +19,8 @@ const gestTruck = (offer, dataBase) => {
     TrucksAvailable = [];
     load = offer.boxes;
     EV.buyTruckEvent.emit('buyNewTruck')
+    console.log(dataBase.Trucks)
     for (Truck of dataBase.Trucks) {
-        console.log(Truck.name + " : " + Truck.status)
         if (Truck.status == "Free") {
             TrucksAvailable.push(Truck)
             verif = true;
@@ -29,9 +30,6 @@ const gestTruck = (offer, dataBase) => {
             }
         }
     }
-
-    console.log(TrucksAvailable)
-
     if (verif == false) {
         console.log("No truck available")
     } else if (load > 0) {
@@ -52,7 +50,7 @@ const truckOnTheRoad = (Truck, offer) => {
     return new Promise(resolve => {
         setTimeout(() => {
             resolve("Free");
-        }, offer.travel / Truck.speed * 1000);
+        }, offer.travel / Truck.speed * 700);
     });
 };
 
@@ -69,12 +67,12 @@ const emitter_ = () => {
     });
 };
 
-const analyzedOffer = offer => {
+const analyzedOffer = (offer, dataBase) => {
     Object.defineProperty(offer, 'pay', {
         value: offer.pricePerBox * offer.boxes
     })
     console.log(offer);
-    gestTruck(offer);
+    gestTruck(offer, dataBase);
 }
 
 module.exports = {
