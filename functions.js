@@ -37,23 +37,21 @@ const gestTruck = (offer, dataBase) => {
     } else {
         console.log("Can take the offer")
         dataBase.bank += offer.pay
-        TrucksAvailable.map((x) => tempTruckOnTheRoad(x, offer));
+        TrucksAvailable.map((x) => truckOnTheRoad(x, offer));
     }
 }
 
-const tempTruckOnTheRoad = async (Truck, offer) => {
-    Truck.status = await truckOnTheRoad(Truck, offer);
-}
-
-const truckOnTheRoad = (Truck, offer) => {
+const truckOnTheRoad = async (Truck, offer) => {
     Truck.status = "OnTheRoad"
-    return new Promise(resolve => {
+    let isArrived = new Promise((resolve, reject) => {
         setTimeout(() => {
-            resolve("Free");
+            resolve("Free")
         }, offer.travel / Truck.speed * 700);
     });
+    isArrived.then((value) => {
+        Truck.status = value
+    })
 };
-
 const launchEmitter = () => {
     emitter_();
     setTimeout(launchEmitter, Math.random() * 10000);
@@ -80,7 +78,6 @@ module.exports = {
     launchEmitter,
     emitter_,
     analyzedOffer,
-    tempTruckOnTheRoad,
     gestTruck,
     truckOnTheRoad,
 };
