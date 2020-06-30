@@ -10,6 +10,20 @@ const dataBase = {
       capacity: 20,
       speed: 100,
     },
+    {
+      name: "Truck_1",
+      level: 1,
+      status: "Free",
+      capacity: 20,
+      speed: 100,
+    },
+    {
+      name: "Truck_2",
+      level: 1,
+      status: "Free",
+      capacity: 20,
+      speed: 100,
+    },
   ],
 };
 EV.marketEvent.on("New Offer", (offer) => FT.analyzedOffer(offer, dataBase));

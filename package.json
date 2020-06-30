@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/LucasBarrot/OfferEmitter#readme",
   "dependencies": {
+    "mathjs": "^7.0.2",
     "xo": "^0.32.0"
   }
 }

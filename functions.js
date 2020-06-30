@@ -1,7 +1,6 @@
 const EV = require("./events.js");
-
+const math = require("mathjs");
 const buyTruck = (dataBase) => {
-  console.log(dataBase.bank);
   if (dataBase.bank > 1000) {
     dataBase.Trucks.push({
       name: "Truck_".concat(dataBase.Trucks.length),
@@ -11,24 +10,27 @@ const buyTruck = (dataBase) => {
       speed: 100,
     });
     dataBase.bank += -1000;
+    console.log(
+      "new truck available " + "Truck_".concat(dataBase.Trucks.length - 1)
+    );
     return dataBase;
   }
 };
 
 const upgradeTruck = (dataBase, truck) => {
-  console.log(dataBase.bank);
-  if (dataBase.bank > 100 * truck.level) {
+  if (dataBase.bank > 100 * truck.level && truck.status == "Free") {
+    dataBase.bank += -100 * truck.level;
     truck.level += 1;
     truck.capacity += 10;
     truck.speed += 10;
-    dataBase.bank += -1000;
+    console.log(truck.name + " is upgraded");
   }
   return dataBase;
 };
 
 const gestPurchase = (dataBase) => {
   trucksToUpgrade = dataBase.Trucks.filter(
-    (truck) => truck.level == dataBase.Trucks.length
+    (truck) => truck.level != dataBase.Trucks.length
   );
   if (trucksToUpgrade.length == 0) {
     buyTruck(dataBase);
@@ -37,19 +39,37 @@ const gestPurchase = (dataBase) => {
   }
 };
 
+const TruckToGo = (trucksAvailable, offer) => {
+  load = offer.boxes;
+  trucksAvailableToGo = [];
+  for (truck of trucksAvailable) {
+    if (load > 0) {
+      load -= truck.capacity;
+      trucksAvailableToGo.push(truck);
+    } else {
+      break;
+    }
+  }
+  trucksAvailableToGo.map((x) => truckOnTheRoad(x, offer));
+};
+
 const gestTruck = (offer, dataBase) => {
   trucksAvailable = dataBase.Trucks.filter((truck) => truck.status == "Free");
   trucksAvailableCapacity = math.sum(
     trucksAvailable.map((truck) => truck.capacity)
   );
-  EV.buyTruckEvent.emit("buyNewTruck");
+  EV.buyTruckEvent.emit("purchaseTruck");
   if (offer.boxes > trucksAvailableCapacity) {
     console.log("Can't take the offer");
   } else {
     console.log("Can take the offer");
     dataBase.bank += offer.pay;
-    trucksAvailable.map((x) => truckOnTheRoad(x, offer));
+    TruckToGo(trucksAvailable, offer);
   }
+  console.log("money : " + dataBase.bank);
+  dataBase.Trucks.map((x) =>
+    console.log(x.name + " (level :" + x.level + "): " + x.status)
+  );
 };
 
 const truckOnTheRoad = async (Truck, offer) => {
