@@ -1,1 +1,1 @@
-# OfferEmitter
+# ProjectEventEmitter
