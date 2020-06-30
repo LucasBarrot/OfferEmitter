@@ -20,17 +20,12 @@ const gestTruck = (offer, dataBase) => {
     trucksAvailableCapacity = math.sum(trucksAvailable.map((truck) => truck.capacity));
     EV.buyTruckEvent.emit('buyNewTruck')
     for (Truck of trucksAvailable) {
-        load += -Truck.capacity;
-        if (load <= 0) {
-            break;
+        offer.boxes += -Truck.capacity;
+        if (offer.boxes <= 0) {
+            console.log("Can take the offer")
+            dataBase.bank += offer.pay
+            trucksAvailable.map((x) => truckOnTheRoad(x, offer));
         }
-    }
-    if (offer.boxes > trucksAvailableCapacity) {
-        console.log("Can't take the offer")
-    } else {
-        console.log("Can take the offer")
-        dataBase.bank += offer.pay
-        trucksAvailable.map((x) => truckOnTheRoad(x, offer));
     }
 }
 
@@ -45,15 +40,18 @@ const truckOnTheRoad = async (Truck, offer) => {
         Truck.status = value
     })
 };
-const launchEmitter = () => {
-    emitter_();
-    setTimeout(launchEmitter, Math.random() * 10000);
+const launchEmitter = (EvolutionRapidityConst, EvolutionRapidity) => {
+    EvolutionRapidity += EvolutionRapidityConst
+    emitter_(EvolutionRapidity);
+    setTimeout(function () {
+        launchEmitter(EvolutionRapidityConst, EvolutionRapidity);
+    }, Math.random() * 10000);
 };
 
-const emitter_ = () => {
+const emitter_ = (evolutionRapidity) => {
     EV.marketEvent.emit('New Offer', {
-        pricePerBox: Math.ceil(Math.random() * 10),
-        boxes: Math.floor(Math.random() * 100),
+        pricePerBox: Math.ceil(Math.random() * 10 * 0.1 * evolutionRapidity),
+        boxes: Math.floor(Math.random() * 100 * 0.1 * evolutionRapidity),
         travel: Math.floor(Math.random() * 1000)
     });
 };
