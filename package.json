@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/LucasBarrot/OfferEmitter/issues"
   },
-  "homepage": "https://github.com/LucasBarrot/OfferEmitter#readme"
+  "homepage": "https://github.com/LucasBarrot/OfferEmitter#readme",
+  "dependencies": {
+    "xo": "^0.32.0"
+  }
 }

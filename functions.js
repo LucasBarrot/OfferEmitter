@@ -46,7 +46,7 @@ const truckOnTheRoad = async (Truck, offer) => {
     let isArrived = new Promise((resolve, reject) => {
         setTimeout(() => {
             resolve("Free")
-        }, offer.travel / Truck.speed * 700);
+        }, (offer.travel / Truck.speed) * 2000);
     });
     isArrived.then((value) => {
         Truck.status = value
@@ -66,9 +66,7 @@ const emitter_ = () => {
 };
 
 const analyzedOffer = (offer, dataBase) => {
-    Object.defineProperty(offer, 'pay', {
-        value: offer.pricePerBox * offer.boxes
-    })
+    offer.pay = offer.pricePerBox * offer.boxes;
     console.log(offer);
     gestTruck(offer, dataBase);
 }
