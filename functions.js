@@ -8,7 +8,7 @@ const buyTruck = (dataBase) => {
             status: "Free",
             capacity: 20,
             speed: 100,
-            consumption: 5
+            consumption: 6
         })
         dataBase.bank += -1000;
         return dataBase

@@ -7,7 +7,7 @@ const dataBase = {
         status: "Free",
         capacity: 20,
         speed: 100,
-        consumption: 5
+        consumption: 6
     }]
 }
 
