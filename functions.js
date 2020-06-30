@@ -1,9 +1,11 @@
 const EV = require("./events.js");
 
 const buyTruck = (dataBase) => {
+  console.log(dataBase.bank);
   if (dataBase.bank > 1000) {
     dataBase.Trucks.push({
-      name: "Truck_".concat(Trucks.length),
+      name: "Truck_".concat(dataBase.Trucks.length),
+      level: 1,
       status: "Free",
       capacity: 20,
       speed: 100,
@@ -13,49 +15,54 @@ const buyTruck = (dataBase) => {
   }
 };
 
-const gestTruck = (offer, dataBase) => {
-  verif = false;
-  TrucksAvailable = [];
-  load = offer.boxes;
-  EV.buyTruckEvent.emit("buyNewTruck");
-  for (Truck of dataBase.Trucks) {
-    console.log(Truck.name + " : " + Truck.status);
-    if (Truck.status == "Free") {
-      TrucksAvailable.push(Truck);
-      verif = true;
-      load += -Truck.capacity;
-      if (load <= 0) {
-        break;
-      }
-    }
+const upgradeTruck = (dataBase, truck) => {
+  console.log(dataBase.bank);
+  if (dataBase.bank > 100 * truck.level) {
+    truck.level += 1;
+    truck.capacity += 10;
+    truck.speed += 10;
+    dataBase.bank += -1000;
   }
+  return dataBase;
+};
 
-  console.log(TrucksAvailable);
+const gestPurchase = (dataBase) => {
+  trucksToUpgrade = dataBase.Trucks.filter(
+    (truck) => truck.level == dataBase.Trucks.length
+  );
+  if (trucksToUpgrade.length == 0) {
+    buyTruck(dataBase);
+  } else {
+    trucksToUpgrade.map((truck) => upgradeTruck(dataBase, truck));
+  }
+};
 
-  if (verif == false) {
-    console.log("No truck available");
-  } else if (load > 0) {
+const gestTruck = (offer, dataBase) => {
+  trucksAvailable = dataBase.Trucks.filter((truck) => truck.status == "Free");
+  trucksAvailableCapacity = math.sum(
+    trucksAvailable.map((truck) => truck.capacity)
+  );
+  EV.buyTruckEvent.emit("buyNewTruck");
+  if (offer.boxes > trucksAvailableCapacity) {
     console.log("Can't take the offer");
   } else {
     console.log("Can take the offer");
     dataBase.bank += offer.pay;
-    TrucksAvailable.map((x) => tempTruckOnTheRoad(x, offer));
+    trucksAvailable.map((x) => truckOnTheRoad(x, offer));
   }
 };
 
-const tempTruckOnTheRoad = async (Truck, offer) => {
-  Truck.status = await truckOnTheRoad(Truck, offer);
-};
-
-const truckOnTheRoad = (Truck, offer) => {
+const truckOnTheRoad = async (Truck, offer) => {
   Truck.status = "OnTheRoad";
-  return new Promise((resolve) => {
+  let isArrived = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve("Free");
-    }, (offer.travel / Truck.speed) * 1000);
+    }, (offer.travel / Truck.speed) * 2000);
+  });
+  isArrived.then((value) => {
+    Truck.status = value;
   });
 };
-
 const launchEmitter = () => {
   emitter_();
   setTimeout(launchEmitter, Math.random() * 10000);
@@ -69,20 +76,17 @@ const emitter_ = () => {
   });
 };
 
-const analyzedOffer = (offer) => {
-  Object.defineProperty(offer, "pay", {
-    value: offer.pricePerBox * offer.boxes,
-  });
+const analyzedOffer = (offer, dataBase) => {
+  offer.pay = offer.pricePerBox * offer.boxes;
   console.log(offer);
-  gestTruck(offer);
+  gestTruck(offer, dataBase);
 };
 
 module.exports = {
-  buyTruck,
   launchEmitter,
   emitter_,
   analyzedOffer,
-  tempTruckOnTheRoad,
   gestTruck,
   truckOnTheRoad,
+  gestPurchase,
 };
