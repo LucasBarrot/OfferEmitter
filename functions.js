@@ -1,5 +1,5 @@
 const EV = require('./events.js')
-
+const math = require('mathjs')
 const buyTruck = (dataBase) => {
     console.log(dataBase.bank)
     if (dataBase.bank > 1000) {
@@ -7,7 +7,8 @@ const buyTruck = (dataBase) => {
             name: "Truck_".concat(dataBase.Trucks.length),
             status: "Free",
             capacity: 20,
-            speed: 100
+            speed: 100,
+            consumption: 5
         })
         dataBase.bank += -1000;
         return dataBase
@@ -15,29 +16,21 @@ const buyTruck = (dataBase) => {
 };
 
 const gestTruck = (offer, dataBase) => {
-    verif = false;
-    TrucksAvailable = [];
-    load = offer.boxes;
+    trucksAvailable = dataBase.Trucks.filter((truck) => truck.status == "Free");
+    trucksAvailableCapacity = math.sum(trucksAvailable.map((truck) => truck.capacity));
     EV.buyTruckEvent.emit('buyNewTruck')
-    console.log(dataBase.Trucks)
-    for (Truck of dataBase.Trucks) {
-        if (Truck.status == "Free") {
-            TrucksAvailable.push(Truck)
-            verif = true;
-            load += -Truck.capacity;
-            if (load <= 0) {
-                break;
-            }
+    for (Truck of trucksAvailable) {
+        load += -Truck.capacity;
+        if (load <= 0) {
+            break;
         }
     }
-    if (verif == false) {
-        console.log("No truck available")
-    } else if (load > 0) {
+    if (offer.boxes > trucksAvailableCapacity) {
         console.log("Can't take the offer")
     } else {
         console.log("Can take the offer")
         dataBase.bank += offer.pay
-        TrucksAvailable.map((x) => truckOnTheRoad(x, offer));
+        trucksAvailable.map((x) => truckOnTheRoad(x, offer));
     }
 }
 
