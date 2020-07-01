@@ -1,33 +1,31 @@
 const EV = require('./events.js');
 const math = require('mathjs');
-
 const buyTruck = (dataBase) => {
   if (dataBase.bank > 1000 * dataBase.Trucks.length) {
-    dataBase.bank += -1000 * dataBase.Trucks.length;
+    dataBase.bank += -(1000 * dataBase.Trucks.length);
     dataBase.Trucks.push({
-      name: 'Truck_'.concat(str(dataBase.Trucks.length)),
+      name: 'Truck_'.concat(dataBase.Trucks.length.toString()),
       level: 1,
       status: 'Free',
       capacity: 20,
-      speed: 80
+      speed: 100,
+      consumption: 8
     });
-
     console.log(
-      'new truck available ' + 'Truck_'.concat(dataBase.Trucks.length - 1)
+      'new truck available ' +
+        'Truck_'.concat((dataBase.Trucks.length - 1).toString())
     );
     return dataBase;
   }
 };
 
 const upgradeTruck = (dataBase, truck) => {
-  if (
-    dataBase.bank > 200 * truck.level * dataBase.Trucks.length &&
-    truck.status === 'Free'
-  ) {
-    dataBase.bank += -200 * truck.level * dataBase.Trucks.length;
+  if (dataBase.bank > 100 * truck.level && truck.status === 'Free') {
+    dataBase.bank += -100 * truck.level;
     truck.level += 1;
-    truck.capacity += 10;
+    truck.capacity += 5;
     truck.speed += 2;
+    truck.consumption += 2;
     console.log(truck.name + ' is upgraded');
   }
 
@@ -45,18 +43,18 @@ const gestPurchase = (dataBase) => {
   }
 };
 
-const TruckToGo = (trucksAvailable, offer) => {
-  load = offer.boxes;
+const truckToGo = (dataBase, trucksAvailable, offer) => {
   const trucksAvailableToGo = [];
-  for (truck of trucksAvailable) {
-    if (load > 0) {
-      load -= truck.capacity;
+  for (const truck of trucksAvailable) {
+    if (offer.boxes > 0) {
+      offer.boxes -= truck.capacity;
       trucksAvailableToGo.push(truck);
     } else {
       break;
     }
   }
-  trucksAvailableToGo.map((x) => truckOnTheRoad(x, offer));
+
+  trucksAvailableToGo.map((x) => truckOnTheRoad(x, offer, dataBase));
 };
 
 const gestTruck = (offer, dataBase) => {
@@ -72,57 +70,75 @@ const gestTruck = (offer, dataBase) => {
   } else {
     console.log('Can take the offer');
     dataBase.bank += offer.pay;
-    TruckToGo(trucksAvailable, offer);
+    truckToGo(dataBase, trucksAvailable, offer);
   }
+
   console.log('money : ' + dataBase.bank);
   dataBase.Trucks.map((x) =>
-    console.log(
-      x.name +
-        ' (level : ' +
-        x.level +
-        ', speed : ' +
-        x.speed +
-        ', capacity: ' +
-        x.capacity +
-        '): ' +
-        x.status
-    )
+    console.log(x.name + ' (level :' + x.level + '); ' + x.status)
   );
   console.log('');
 };
 
-const truckOnTheRoad = async (Truck, offer) => {
+const truckOnTheRoad = async (Truck, offer, dataBase) => {
   Truck.status = 'OnTheRoad';
-  let isArrived = new Promise((resolve, reject) => {
+  const isArrived = new Promise((resolve) => {
     setTimeout(() => {
       resolve('Free');
     }, (offer.travel / Truck.speed) * 2000);
   });
   isArrived.then((value) => {
+    dataBase.bank += -Math.ceil(Truck.consumption * offer.travel * 0.01);
     Truck.status = value;
+    console.log(
+      Truck.name +
+        ': Shipping done. Cost :' +
+        Math.ceil(Truck.consumption * offer.travel * 0.01)
+    );
+    return dataBase;
   });
 };
 
-const launchEmitter = (EvolutionRapidityConst, EvolutionRapidity) => {
-  EvolutionRapidity += EvolutionRapidityConst;
-  emitter_(EvolutionRapidity);
+const launchEmitter = (dataBase) => {
+  emitter_(dataBase);
   setTimeout(function () {
-    launchEmitter(EvolutionRapidityConst, EvolutionRapidity);
+    launchEmitter(dataBase);
   }, Math.random() * 10000);
+  dataBase.difficulty += 0.1;
+  return dataBase;
 };
 
-const emitter_ = (evolutionRapidity) => {
+const emitter_ = (dataBase) => {
   EV.marketEvent.emit('New Offer', {
-    pricePerBox: Math.ceil(Math.random() * 10 * 0.1 * evolutionRapidity),
-    boxes: Math.floor(Math.random() * 100 * 0.1 * evolutionRapidity),
+    pricePerBox: Math.ceil(Math.random() * 10 * dataBase.difficulty),
+    boxes: Math.floor(Math.random() * 50 * dataBase.difficulty + 10),
     travel: Math.floor(Math.random() * 1000)
   });
 };
 
 const analyzedOffer = (offer, dataBase) => {
   offer.pay = offer.pricePerBox * offer.boxes;
-  console.log(offer);
-  gestTruck(offer, dataBase);
+  console.log(
+    'New offer :\n' +
+      'Boxes :' +
+      offer.boxes +
+      '\nPrice per box :' +
+      offer.pricePerBox +
+      '\nTravel :' +
+      offer.travel +
+      '\n'
+  );
+  if (
+    offer.pay >
+    (offer.boxes / dataBase.Trucks[0].capacity) *
+      dataBase.Trucks[0].consumption *
+      offer.travel *
+      0.01
+  ) {
+    gestTruck(offer, dataBase);
+  } else {
+    console.log('offer not worth, abort mission');
+  }
 };
 
 module.exports = {
