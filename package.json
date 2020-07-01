@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "xo"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,12 @@
   "dependencies": {
     "mathjs": "^7.0.2",
     "xo": "^0.32.0"
+  },
+  "xo": {
+    "space": 2,
+    "prettier": true,
+    "rules": {
+      "unicorn/no-fn-reference-in-iterator": 0
+    }
   }
 }
